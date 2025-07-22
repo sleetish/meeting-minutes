@@ -82,7 +82,7 @@ class TranscriptProcessor:
         try:
             # Select and initialize the AI model and agent
             if model == "claude":
-                api_key = await db.get_api_key("claude")
+                api_key = os.getenv("ANTHROPIC_API_KEY")
                 if not api_key: raise ValueError("ANTHROPIC_API_KEY environment variable not set")
                 llm = AnthropicModel(model_name, api_key=api_key)
                 logger.info(f"Using Claude model: {model_name}")
@@ -92,13 +92,13 @@ class TranscriptProcessor:
                 llm = OllamaModel(model_name)
                 logger.info(f"Using Ollama model: {model_name}")
             elif model == "groq":
-                api_key = await db.get_api_key("groq")
+                api_key = os.getenv("GROQ_API_KEY")
                 if not api_key: raise ValueError("GROQ_API_KEY environment variable not set")
                 llm = GroqModel(model_name, api_key=api_key)
                 logger.info(f"Using Groq model: {model_name}")
             # --- ADD OPENAI SUPPORT HERE ---
             elif model == "openai":
-                api_key = await db.get_api_key("openai")
+                api_key = os.getenv("OPENAI_API_KEY")
                 if not api_key: raise ValueError("OPENAI_API_KEY environment variable not set")
                 llm = OpenAIModel(model_name, api_key=api_key)
                 logger.info(f"Using OpenAI model: {model_name}")

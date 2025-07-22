@@ -41,13 +41,18 @@ app = FastAPI(
 )
 
 # Configure CORS
+origins = [
+    "http://localhost:3000",
+    "https://localhost:3000",
+    "tauri://localhost",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],     # Allow all origins for testing
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],     # Allow all methods
-    allow_headers=["*"],     # Allow all headers
-    max_age=3600,            # Cache preflight requests for 1 hour
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Global database manager instance for meeting management endpoints
@@ -428,26 +433,17 @@ async def save_transcript(request: SaveTranscriptRequest):
 async def get_model_config():
     """Get the current model configuration"""
     model_config = await db.get_model_config()
-    api_key = await db.get_api_key(model_config["provider"])
-    if api_key != None:
-        model_config["apiKey"] = api_key
     return model_config
 
 @app.post("/save-model-config")
 async def save_model_config(request: SaveModelConfigRequest):
     """Save the model configuration"""
     await db.save_model_config(request.provider, request.model, request.whisperModel)
-    if request.apiKey != None:
-        await db.save_api_key(request.apiKey, request.provider)
     return {"status": "success", "message": "Model configuration saved successfully"}  
 
 class GetApiKeyRequest(BaseModel):
     provider: str
 
-@app.post("/get-api-key")
-async def get_api_key(request: GetApiKeyRequest):
-    """Get the API key for a given provider"""
-    return await db.get_api_key(request.provider)
 
 
 
